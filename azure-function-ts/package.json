@@ -1,0 +1,15 @@
+{
+  "name": "azure-function-ts-v4",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "zip": "rm -f function.zip && zip -r function.zip hello1 hello2 hello3 host.json package.json"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}
