@@ -135,7 +135,7 @@ resource "azurerm_linux_function_app" "func" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME       = "node"
     FUNCTIONS_EXTENSION_VERSION   = "~4"
-    WEBSITE_RUN_FROM_PACKAGE       = "https://${data.azurerm_storage_account.sa.name}.blob.core.windows.net/nikfnappstore/${azurerm_storage_blob.function_zip.name}${data.azurerm_storage_account_sas.sas.sas}"
+    WEBSITE_RUN_FROM_PACKAGE       = "https://${data.azurerm_storage_account.sa.name}.blob.core.windows.net/calmccblobstore/${azurerm_storage_blob.function_zip.name}${data.azurerm_storage_account_sas.sas.sas}"
     NODE_VERSION                   = "~20"    # Node 20 LTS
     SCM_DO_BUILD_DURING_DEPLOYMENT = "false"
   }
@@ -152,3 +152,59 @@ resource "azurerm_linux_function_app" "func" {
     azurerm_storage_blob.function_zip
   ]
 }
+
+#resource "azurerm_api_management" "apim" {
+#  name                = "calmcc-apim-${random_string.suffix.result}"
+#  location            = var.location
+#  resource_group_name = var.resource_group
+#  publisher_name      = "YourCompany"
+#  publisher_email     = "admin@yourcompany.com"
+#  sku_name            = "Developer_1"
+#}
+
+
+#resource "azurerm_api_management_api" "func_api" {
+#  depends_on = [
+#    azurerm_linux_function_app.func
+#  ]
+#
+#  name                = "calmccfn-api"
+#  resource_group_name = var.resource_group
+#  api_management_name = azurerm_api_management.apim.name
+#  revision            = "1"
+#  display_name        = "Function API"
+#  path                = "function"
+#  protocols            = ["https"]
+#
+#  import {
+#    content_format = "swagger-link-json"
+#    content_value = jsonencode({
+#      openapi = "3.0.1"
+#      info = {
+#        title   = "Function API"
+#        version = "1.0.0"
+#      }
+#      paths = {
+#        "/hello1" = {
+#          get = {
+#            responses = { "200" = { description = "Hello1 response" } }
+#            "x-azure-settings" = { backend = { url = "https://${azurerm_linux_function_app.func.default_hostname}/api/hello1" } }
+#          }
+#        }
+#        "/hello2" = {
+#          get = {
+#            responses = { "200" = { description = "Hello2 response" } }
+#            "x-azure-settings" = { backend = { url = "https://${azurerm_linux_function_app.func.default_hostname}/api/hello2" } }
+#          }
+#        }
+#        "/hello3" = {
+#          get = {
+#            responses = { "200" = { description = "Hello3 response" } }
+#            "x-azure-settings" = { backend = { url = "https://${azurerm_linux_function_app.func.default_hostname}/api/hello3" } }
+#          }
+#        }
+#      }
+#    })
+#  }
+#}
+
