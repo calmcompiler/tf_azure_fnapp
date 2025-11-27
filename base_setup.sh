@@ -1,28 +1,21 @@
 #az login
-#az account list --output table
+az account list --output table
 
-az group create \
-  --name calmccrg \
-  --location southindia
+LOCATION=southindia
+RESOURCE_GROUP=calmccrg
+STORAGE_ACCOUNT=calmccsa
+TF_STATE_STORE=calmcctfstate
+BLOB_STORE=calmccblobstore
+SERVICE_PLAN=calmccserviceplan
 
-az storage account create \
-  --name calmccsa \
-  --resource-group calmccrg \
-  --location southindia \
-  --sku Standard_LRS
+az group create --name $RESOURCE_GROUP --location $LOCATION
 
-ACCOUNT_KEY=$(az storage account keys list \
-  --resource-group calmccrg \
-  --account-name calmccsa \
-  --query [0].value -o tsv)
+az storage account create --name $STORAGE_ACCOUNT --resource-group $RESOURCE_GROUP --location $LOCATION --sku Standard_LRS
 
-az storage container create \
-  --name calmcctfstate \
-  --account-name calmccsa \
-  --account-key $ACCOUNT_KEY
+ACCOUNT_KEY=$(az storage account keys list --resource-group $RESOURCE_GROUP --account-name $STORAGE_ACCOUNT --query [0].value -o tsv)
 
-az storage container create \
-  --name calmccblobstore \
-  --account-name calmccsa \
-  --account-key $ACCOUNT_KEY
+az storage container create --name $TF_STATE_STORE --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY
 
+az storage container create --name $BLOB_STORE --account-name $STORAGE_ACCOUNT --account-key $ACCOUNT_KEY
+
+az appservice plan create --name $SERVICE_PLAN --resource-group $RESOURCE_GROUP --location $LOCATION --sku B1 --is-linux
