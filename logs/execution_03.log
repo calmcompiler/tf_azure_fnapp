@@ -1,0 +1,137 @@
+snmad@LAPTOP-7AACOH9U MINGW64 /c/@calmcompiler/terraform_azure_fnapp/infrastructure
+$ terraform plan -out=tf_plan_03
+Acquiring state lock. This may take a few moments...
+null_resource.build_function: Refreshing state... [id=854131507]
+random_string.suffix: Refreshing state... [id=m7hnn]
+data.azurerm_service_plan.plan: Reading...
+data.azurerm_storage_account.sa: Reading...
+data.azurerm_storage_account.sa: Read complete after 1s [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Storage/storageAccounts/calmccsa]
+data.azurerm_storage_account_sas.sas: Reading...
+data.azurerm_service_plan.plan: Read complete after 1s [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/serverFarms/calmccserviceplan]
+azurerm_storage_blob.function_zip: Refreshing state... [id=https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_054422.zip]
+data.azurerm_storage_account_sas.sas: Read complete after 0s [id=38695fa0de4310472afd67d7fbde8660e5499d7e93bafcfc4450919f99d9809b]
+azurerm_linux_function_app.func: Refreshing state... [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  ~ update in-place
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # azurerm_linux_function_app.func will be updated in-place
+  ~ resource "azurerm_linux_function_app" "func" {
+      ~ app_settings                                   = {
+          - "FUNCTIONS_WORKER_RUNTIME"       = "node"
+          - "SCM_DO_BUILD_DURING_DEPLOYMENT" = "false"
+          - "WEBSITE_RUN_FROM_PACKAGE"       = (sensitive value)
+        } -> (known after apply)
+      ~ functions_extension_version                    = "~3" -> "~4"
+        id                                             = "/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn"
+        name                                           = "calmccfnappv3-m7hnn"
+        tags                                           = {}
+        # (32 unchanged attributes hidden)
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # azurerm_storage_blob.function_zip must be replaced
+-/+ resource "azurerm_storage_blob" "function_zip" {
+      ~ access_tier            = "Hot" -> (known after apply)
+      ~ id                     = "https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_054422.zip" -> (known after apply)
+      ~ metadata               = {} -> (known after apply)
+      ~ name                   = "function_20251207_054422.zip" -> (known after apply) # forces replacement
+      ~ url                    = "https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_054422.zip" -> (known after apply)
+        # (10 unchanged attributes hidden)
+    }
+
+  # null_resource.build_function must be replaced
+-/+ resource "null_resource" "build_function" {
+      ~ id       = "854131507" -> (known after apply)
+      ~ triggers = { # forces replacement
+          ~ "always_run" = "2025-12-07T05:44:40Z" -> (known after apply)
+        }
+    }
+
+Plan: 2 to add, 1 to change, 2 to destroy.
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Saved the plan to: tf_plan_03
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tf_plan_03"
+Releasing state lock. This may take a few moments...
+
+snmad@LAPTOP-7AACOH9U MINGW64 /c/@calmcompiler/terraform_azure_fnapp/infrastructure
+$ terraform apply "tf_plan_03"
+Acquiring state lock. This may take a few moments...
+azurerm_storage_blob.function_zip: Destroying... [id=https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_054422.zip]
+azurerm_storage_blob.function_zip: Destruction complete after 1s
+null_resource.build_function: Destroying... [id=854131507]
+null_resource.build_function: Destruction complete after 0s
+null_resource.build_function: Creating...
+null_resource.build_function: Provisioning with 'local-exec'...
+null_resource.build_function (local-exec): Executing: ["bash" "-c" "      pushd azure-function-ts\r\n      chmod +x build.sh\r\n      ./build.sh\r\n      popd\r\n"]
+null_resource.build_function (local-exec): /c/@calmcompiler/terraform_azure_fnapp/infrastructure/azure-function-ts /c/@calmcompiler/terraform_azure_fnapp/infrastructure
+null_resource.build_function (local-exec): + rm -rf dist function.zip
+null_resource.build_function (local-exec): + mkdir -p dist
+null_resource.build_function (local-exec): + npm install
+
+null_resource.build_function (local-exec): up to date, audited 9 packages in 1s
+
+null_resource.build_function (local-exec): found 0 vulnerabilities
+null_resource.build_function (local-exec): + npx tsc
+null_resource.build_function (local-exec): + for func in hello*
+null_resource.build_function (local-exec): + cp hello1/function.json dist/hello1/
+null_resource.build_function (local-exec): + for func in hello*
+null_resource.build_function (local-exec): + cp hello2/function.json dist/hello2/
+null_resource.build_function (local-exec): + for func in hello*
+null_resource.build_function (local-exec): + cp hello3/function.json dist/hello3/
+null_resource.build_function (local-exec): + cp host.json dist/
+null_resource.build_function (local-exec): + cp package.json dist/
+null_resource.build_function (local-exec): + cd dist
+null_resource.build_function (local-exec): + zip -r ../function.zip .
+null_resource.build_function (local-exec):   adding: hello1/ (192 bytes security) (stored 0%)
+null_resource.build_function (local-exec):   adding: hello1/function.json (172 bytes security) (deflated 50%)
+null_resource.build_function (local-exec):   adding: hello1/index.js (172 bytes security) (deflated 30%)
+null_resource.build_function (local-exec):   adding: hello2/ (192 bytes security) (stored 0%)
+null_resource.build_function (local-exec):   adding: hello2/function.json (172 bytes security) (deflated 50%)
+null_resource.build_function (local-exec):   adding: hello2/index.js (172 bytes security) (deflated 30%)
+null_resource.build_function (local-exec):   adding: hello3/ (192 bytes security) (stored 0%)
+null_resource.build_function (local-exec):   adding: hello3/function.json (172 bytes security) (deflated 50%)
+null_resource.build_function (local-exec):   adding: hello3/index.js (172 bytes security) (deflated 30%)
+null_resource.build_function (local-exec):   adding: host.json (172 bytes security) (deflated 29%)
+null_resource.build_function (local-exec):   adding: package.json (172 bytes security) (deflated 41%)
+null_resource.build_function (local-exec): + cd ..
+null_resource.build_function (local-exec): + echo '⭐ function.zip created successfully!'
+null_resource.build_function (local-exec): ⭐ function.zip created successfully!
+null_resource.build_function (local-exec): + unzip -l function.zip
+null_resource.build_function (local-exec): Archive:  function.zip
+null_resource.build_function (local-exec):   Length      Date    Time    Name
+null_resource.build_function (local-exec): ---------  ---------- -----   ----
+null_resource.build_function (local-exec):         0  2025-12-07 11:22   hello1/
+null_resource.build_function (local-exec):       299  2025-12-07 11:22   hello1/function.json
+null_resource.build_function (local-exec):       268  2025-12-07 11:22   hello1/index.js
+null_resource.build_function (local-exec):         0  2025-12-07 11:22   hello2/
+null_resource.build_function (local-exec):       299  2025-12-07 11:22   hello2/function.json
+null_resource.build_function (local-exec):       268  2025-12-07 11:22   hello2/index.js
+null_resource.build_function (local-exec):         0  2025-12-07 11:22   hello3/
+null_resource.build_function (local-exec):       299  2025-12-07 11:22   hello3/function.json
+null_resource.build_function (local-exec):       268  2025-12-07 11:22   hello3/index.js
+null_resource.build_function (local-exec):       143  2025-12-07 11:22   host.json
+null_resource.build_function (local-exec):       307  2025-12-07 11:22   package.json
+null_resource.build_function (local-exec): ---------                     -------
+null_resource.build_function (local-exec):      2151                     11 files
+null_resource.build_function (local-exec): /c/@calmcompiler/terraform_azure_fnapp/infrastructure
+null_resource.build_function: Creation complete after 9s [id=1450054236]
+azurerm_storage_blob.function_zip: Creating...
+azurerm_storage_blob.function_zip: Creation complete after 1s [id=https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_055232.zip]
+azurerm_linux_function_app.func: Modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn]
+azurerm_linux_function_app.func: Still modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-...icrosoft.Web/sites/calmccfnappv3-m7hnn, 00m10s elapsed]
+azurerm_linux_function_app.func: Still modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-...icrosoft.Web/sites/calmccfnappv3-m7hnn, 00m20s elapsed]
+azurerm_linux_function_app.func: Still modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-...icrosoft.Web/sites/calmccfnappv3-m7hnn, 00m30s elapsed]
+azurerm_linux_function_app.func: Modifications complete after 36s [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn]
+Releasing state lock. This may take a few moments...
+
+Apply complete! Resources: 2 added, 1 changed, 2 destroyed.
+
