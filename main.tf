@@ -94,24 +94,17 @@ data "azurerm_service_plan" "plan" {
 # Build ZIP Locally (Windows)
 ############################################
 resource "null_resource" "build_function_windows" {
-
   count = local.is_windows ? 1 : 0
 
   provisioner "local-exec" {
     interpreter = ["cmd", "/c"]
-
-    command = <<EOT
-      pushd azure-function-ts
-      call build_function.cmd
-      popd
-    EOT
+    command     = "cd azure-function-ts && call build_function.cmd && cd .."
   }
 
   triggers = {
     always_run = timestamp()
   }
 }
-
 
 ############################################
 # Build ZIP Locally (Linux / Mac)
