@@ -1,3 +1,7 @@
+#############################################
+# Variables
+#############################################
+
 variable "location" {
   description = "Azure region"
   type        = string
@@ -35,11 +39,18 @@ variable "blob_storage_container" {
   default = "calmccblobstore"
 }
 
+#############################################
+# Locals
+#############################################
+
 locals {
   function_zip_timestamp = formatdate("YYYYMMDD_hhmmss", timestamp())
   function_zip_name      = "function_${local.function_zip_timestamp}.zip"
 }
 
+locals {
+  is_windows = length(regexall("^[A-Za-z]:", abspath(path.root))) > 0
+}
 
 ############################################
 # Terraform Backend (State Storage)
@@ -53,6 +64,10 @@ terraform {
   }
 }
 
+
+############################################
+# Azure Provider
+############################################
 provider "azurerm" {
   features {}
   subscription_id = "3bf3e411-8098-44b9-b34f-73b2829eb2ad"
@@ -75,17 +90,19 @@ data "azurerm_service_plan" "plan" {
   resource_group_name = var.resource_group
 }
 
+############################################
+# Build ZIP Locally (Windows)
+############################################
+resource "null_resource" "build_function_windows" {
 
-############################################
-# Build ZIP locally (Git Bash Compatible)
-############################################
-resource "null_resource" "build_function" {
+  count = local.is_windows ? 1 : 0
+
   provisioner "local-exec" {
-    interpreter = ["bash", "-c"]
+    interpreter = ["cmd", "/c"]
+
     command = <<EOT
       pushd azure-function-ts
-      chmod +x build.sh
-      ./build.sh
+      call build_function.cmd
       popd
     EOT
   }
@@ -94,6 +111,32 @@ resource "null_resource" "build_function" {
     always_run = timestamp()
   }
 }
+
+
+############################################
+# Build ZIP Locally (Linux / Mac)
+############################################
+resource "null_resource" "build_function_unix" {
+
+  count = local.is_windows ? 0 : 1
+
+  provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
+
+    command = <<EOT
+      pushd azure-function-ts
+      chmod +x build_function.sh
+      ./build_function.sh
+      popd
+    EOT
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+}
+
+
 
 ############################################
 # Upload ZIP to Blob Storage (Timestamped)
@@ -105,7 +148,11 @@ resource "azurerm_storage_blob" "function_zip" {
   type                   = "Block"
   source                 = "${path.module}/azure-function-ts/function.zip"
 
-  depends_on = [null_resource.build_function]
+  depends_on = [
+    null_resource.build_function_windows,
+    null_resource.build_function_unix
+  ]
+
 }
 
 
