@@ -77,7 +77,7 @@ data "azurerm_service_plan" "plan" {
 
 
 ############################################
-# Build ZIP locally (Git Bash)
+# Build ZIP locally (Git Bash Compatible)
 ############################################
 resource "null_resource" "build_function" {
   provisioner "local-exec" {
