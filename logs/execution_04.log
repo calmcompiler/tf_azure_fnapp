@@ -1,0 +1,82 @@
+snmad@LAPTOP-7AACOH9U MINGW64 /c/@calmcompiler/terraform_azure_fnapp/infrastructure
+$ terraform plan -out=tf_plan_04
+null_resource.build_function: Refreshing state... [id=1450054236]
+random_string.suffix: Refreshing state... [id=m7hnn]
+data.azurerm_service_plan.plan: Reading...
+data.azurerm_storage_account.sa: Reading...
+data.azurerm_service_plan.plan: Read complete after 3s [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/serverFarms/calmccserviceplan]
+data.azurerm_storage_account.sa: Read complete after 4s [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Storage/storageAccounts/calmccsa]
+data.azurerm_storage_account_sas.sas: Reading...
+azurerm_storage_blob.function_zip: Refreshing state... [id=https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_055232.zip]
+data.azurerm_storage_account_sas.sas: Read complete after 0s [id=38695fa0de4310472afd67d7fbde8660e5499d7e93bafcfc4450919f99d9809b]
+azurerm_linux_function_app.func: Refreshing state... [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn]
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+  ~ update in-place
+  - destroy
+-/+ destroy and then create replacement
+
+Terraform will perform the following actions:
+
+  # azurerm_linux_function_app.func will be updated in-place
+  ~ resource "azurerm_linux_function_app" "func" {
+      ~ app_settings                                   = {
+          - "FUNCTIONS_WORKER_RUNTIME"       = "node"
+          - "SCM_DO_BUILD_DURING_DEPLOYMENT" = "false"
+          - "WEBSITE_RUN_FROM_PACKAGE"       = (sensitive value)
+        } -> (known after apply)
+      ~ functions_extension_version                    = "~3" -> "~4"
+        id                                             = "/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn"
+        name                                           = "calmccfnappv3-m7hnn"
+        tags                                           = {}
+        # (32 unchanged attributes hidden)
+
+        # (3 unchanged blocks hidden)
+    }
+
+  # azurerm_storage_blob.function_zip must be replaced
+-/+ resource "azurerm_storage_blob" "function_zip" {
+      ~ access_tier            = "Hot" -> (known after apply)
+      ~ id                     = "https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_055232.zip" -> (known after apply)
+      ~ metadata               = {} -> (known after apply)
+      ~ name                   = "function_20251207_055232.zip" -> (known after apply) # forces replacement
+      ~ url                    = "https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_055232.zip" -> (known after apply)
+        # (10 unchanged attributes hidden)
+    }
+
+  # null_resource.build_function will be destroyed
+  # (because null_resource.build_function is not in configuration)
+  - resource "null_resource" "build_function" {
+      - id       = "1450054236" -> null
+      - triggers = {
+          - "always_run" = "2025-12-07T05:52:47Z"
+        } -> null
+    }
+
+  # null_resource.build_function_windows[0] will be created
+  + resource "null_resource" "build_function_windows" {
+Saved the plan to: tf_plan_04
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tf_plan_04"
+
+snmad@LAPTOP-7AACOH9U MINGW64 /c/@calmcompiler/terraform_azure_fnapp/infrastructure
+$ terraform apply "tf_plan_04"
+azurerm_storage_blob.function_zip: Destroying... [id=https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_055232.zip]
+azurerm_storage_blob.function_zip: Destruction complete after 1s
+null_resource.build_function: Destroying... [id=1450054236]
+null_resource.build_function: Destruction complete after 0s
+null_resource.build_function_windows[0]: Creating...
+null_resource.build_function_windows[0]: Provisioning with 'local-exec'...
+null_resource.build_function_windows[0] (local-exec): Executing: ["cmd" "/c" "      pushd azure-function-ts\r\n      call build_function.cmd\r\n      popd\r\n"]
+null_resource.build_function_windows[0]: Creation complete after 0s [id=108748189]
+azurerm_storage_blob.function_zip: Creating...
+azurerm_storage_blob.function_zip: Creation complete after 1s [id=https://calmccsa.blob.core.windows.net/calmccblobstore/function_20251207_063216.zip]
+azurerm_linux_function_app.func: Modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn]
+azurerm_linux_function_app.func: Still modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-...icrosoft.Web/sites/calmccfnappv3-m7hnn, 00m10s elapsed]
+azurerm_linux_function_app.func: Still modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-...icrosoft.Web/sites/calmccfnappv3-m7hnn, 00m20s elapsed]
+azurerm_linux_function_app.func: Still modifying... [id=/subscriptions/3bf3e411-8098-44b9-b34f-...icrosoft.Web/sites/calmccfnappv3-m7hnn, 00m30s elapsed]
+azurerm_linux_function_app.func: Modifications complete after 33s [id=/subscriptions/3bf3e411-8098-44b9-b34f-73b2829eb2ad/resourceGroups/calmccrg/providers/Microsoft.Web/sites/calmccfnappv3-m7hnn]
+
+Apply complete! Resources: 2 added, 1 changed, 2 destroyed.
